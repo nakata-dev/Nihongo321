@@ -146,6 +146,11 @@ body{
   font-size: 18px;
   box-shadow: 0 8px 18px rgba(0,0,0,.22);
   touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.hudBtn[aria-pressed="true"]{
+  border-color: rgba(122,167,255,.30);
+  background: rgba(122,167,255,.12);
 }
 .hudItem{
   display:flex;
@@ -233,6 +238,7 @@ body{
   letter-spacing: .3px;
   box-shadow: 0 18px 40px rgba(0,0,0,.32);
   touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .btn{
@@ -246,6 +252,7 @@ body{
   letter-spacing: .2px;
   box-shadow: 0 10px 22px rgba(0,0,0,.18);
   touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 .btn--full{ width:100%; }
 
@@ -693,7 +700,7 @@ select.selectBtn:focus{
 }
 .miniBtn:active{ transform: translateY(1px) scale(.99); }
 
-/* ✅ NOVO: painel do timer + call alinhado à direita (como na seta) */
+/* painel do timer */
 .studyDock{
   display:flex;
   justify-content:flex-end;
