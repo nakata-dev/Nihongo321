@@ -20,15 +20,14 @@
       </div>
     </div>
 
-    <div class="hud" aria-label="Controles rápidos">
-      <div class="hudItem" title="moedas" aria-label="moedas">
-        <span class="hudIcon" aria-hidden="true">🪙</span>
+    <div class="hud" aria-label="HUD">
+      <div class="hudItem" title="moedas">
+        <span class="hudIcon">🪙</span>
         <span id="hudCoinsVal">0</span>
       </div>
-
-      <button class="hudBtn" id="hudSound" type="button" title="som" aria-label="som" aria-pressed="true">🔊</button>
-      <button class="hudBtn" id="hudVibe" type="button" title="vibração" aria-label="vibração" aria-pressed="true">📳</button>
-      <button class="hudBtn" type="button" title="ajustes" aria-label="ajustes" data-nav="#/settings">⚙️</button>
+      <button class="hudBtn" id="hudSound" title="som" aria-label="som">🔊</button>
+      <button class="hudBtn" id="hudVibe" title="vibração" aria-label="vibração">📳</button>
+      <button class="hudBtn" title="ajustes" aria-label="ajustes" onclick="location.hash='#/settings'">⚙️</button>
     </div>
   </header>
 

@@ -146,11 +146,6 @@ body{
   font-size: 18px;
   box-shadow: 0 8px 18px rgba(0,0,0,.22);
   touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-}
-.hudBtn[aria-pressed="true"]{
-  border-color: rgba(122,167,255,.30);
-  background: rgba(122,167,255,.12);
 }
 .hudItem{
   display:flex;
@@ -238,7 +233,6 @@ body{
   letter-spacing: .3px;
   box-shadow: 0 18px 40px rgba(0,0,0,.32);
   touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
 }
 
 .btn{
@@ -252,7 +246,6 @@ body{
   letter-spacing: .2px;
   box-shadow: 0 10px 22px rgba(0,0,0,.18);
   touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
 }
 .btn--full{ width:100%; }
 
@@ -302,7 +295,7 @@ body{
   gap:10px;
 }
 
-/* ✅ FIX: select legível (menu "tudo") */
+/* select legível */
 .selectBtn{
   appearance: none;
   -webkit-appearance: none;
@@ -320,9 +313,7 @@ select.selectBtn option{
   background: #0b1020;
   color: #eef3ff;
 }
-select.selectBtn:focus{
-  outline: none;
-}
+select.selectBtn:focus{ outline: none; }
 .selectBtn{
   background-image:
     linear-gradient(45deg, transparent 50%, rgba(238,243,255,.70) 50%),
@@ -438,11 +429,13 @@ select.selectBtn:focus{
 }
 .pill:active{ transform: translateY(1px) scale(.99); }
 
-/* ---------- gerenciar: botões editar/excluir ---------- */
+/* ---------- gerenciar ---------- */
 .manageBtns{
   display:flex;
   gap:10px;
   align-items:center;
+  flex-wrap: wrap;
+  justify-content:flex-end;
 }
 .manageBtns .btn{
   height: 44px;
@@ -452,15 +445,14 @@ select.selectBtn:focus{
   box-shadow: 0 10px 22px rgba(0,0,0,.14);
   white-space: nowrap;
 }
+.manageBtns .btn.compact{ padding: 0 12px; }
 
-/* ---- dropdown / grupos no gerenciar ---- */
 .topicGroup{ display:flex; flex-direction:column; gap:10px; }
 
 .topicHdr{
   width:100%;
   display:flex;
-  align-items:center;
-  justify-content:space-between;
+  flex-direction:column;
   gap:10px;
   padding: 12px 12px;
   border-radius: 18px;
@@ -472,6 +464,14 @@ select.selectBtn:focus{
   box-shadow: 0 10px 22px rgba(0,0,0,.16);
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
+  text-align:left;
+}
+
+.topicHdrTop{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
 }
 
 .topicHdrL{
@@ -479,7 +479,9 @@ select.selectBtn:focus{
   align-items:center;
   gap:10px;
   min-width:0;
+  flex: 1;
 }
+
 .topicDot{
   width:10px;
   height:10px;
@@ -488,6 +490,7 @@ select.selectBtn:focus{
   border:1px solid rgba(255,255,255,.18);
   box-shadow: 0 8px 18px rgba(0,0,0,.20);
 }
+
 .topicName{
   font-weight:1000;
   letter-spacing:.2px;
@@ -496,6 +499,7 @@ select.selectBtn:focus{
   text-overflow:ellipsis;
   max-width: 46vw;
 }
+
 .topicCount{
   font-weight:1000;
   font-size: 12px;
@@ -505,6 +509,59 @@ select.selectBtn:focus{
   padding: 4px 8px;
   border-radius: 999px;
 }
+
+.topicHdrR{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex: 0 0 auto;
+}
+
+.topicDrag{
+  width: 34px;
+  height: 34px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.05);
+  display:grid;
+  place-items:center;
+  font-weight: 1000;
+  color: rgba(238,243,255,.85);
+  box-shadow: 0 10px 22px rgba(0,0,0,.16);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.topicProgRow{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.topicProg{
+  width: 110px;
+  height: 10px;
+  border-radius: 999px;
+  overflow:hidden;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.05);
+}
+.topicProgFill{
+  height: 100%;
+  width: 100%;
+  transform-origin: left center;
+  transform: scaleX(0);
+  background: linear-gradient(90deg, rgba(37,211,102,.85), rgba(122,167,255,.65), rgba(255,134,200,.55));
+}
+.topicPct{
+  font-size: 12px;
+  font-weight: 900;
+  color: rgba(238,243,255,.78);
+  min-width: 34px;
+  text-align:right;
+}
+
 .topicChevron{
   font-weight:1000;
   opacity:.9;
@@ -525,9 +582,28 @@ select.selectBtn:focus{
   align-items:center;
   justify-content:flex-end;
   margin-top: 6px;
+  flex-wrap: wrap;
 }
 
-/* ---- Reorder touch (drag) ---- */
+/* ✅ scroll interno do tópico (evita scroll infinito) */
+.scrollBox{
+  max-height: 420px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-bottom: 6px;
+  scrollbar-width: thin;
+}
+.scrollBox::-webkit-scrollbar{ width: 10px; }
+.scrollBox::-webkit-scrollbar-thumb{
+  background: rgba(255,255,255,.12);
+  border-radius: 999px;
+}
+.scrollBox::-webkit-scrollbar-track{
+  background: rgba(0,0,0,.10);
+  border-radius: 999px;
+}
+
+/* reorder frases */
 .reorderList{ display:flex; flex-direction:column; gap:10px; }
 .reorderItem{
   position: relative;
@@ -540,14 +616,15 @@ select.selectBtn:focus{
 
 .reorderTop{
   display:flex;
-  align-items:center;
+  align-items:flex-start;
   justify-content:space-between;
-  gap:10px;
+  gap:12px;
+  flex-wrap: wrap;
 }
 
 .reorderLeft{
-  min-width:0;
-  flex:1;
+  min-width: 220px;
+  flex: 1 1 260px;
 }
 
 .dragHandle{
@@ -573,11 +650,6 @@ select.selectBtn:focus{
   box-shadow: 0 18px 34px rgba(0,0,0,.28);
 }
 
-.reorderGhost{
-  border: 1px dashed rgba(255,255,255,.22);
-  background: rgba(255,255,255,.02);
-}
-
 /* cores por tópico */
 .tRose{ background: rgba(255,92,122,.12); border-color: rgba(255,92,122,.22); }
 .tViolet{ background: rgba(183,155,255,.12); border-color: rgba(183,155,255,.22); }
@@ -588,7 +660,7 @@ select.selectBtn:focus{
 .tPink{ background: rgba(255,134,200,.10); border-color: rgba(255,134,200,.18); }
 .tMint{ background: rgba(120,255,210,.10); border-color: rgba(120,255,210,.18); }
 
-/* karaoke */
+/* karaoke + ruby */
 .kseg{ padding: 2px 1px; border-radius: 8px; }
 .kseg.on{
   background: rgba(37,211,102,.16);
@@ -625,7 +697,7 @@ select.selectBtn:focus{
 }
 .itemTop{
   display:flex;
-  align-items:center;
+  align-items:flex-start;
   justify-content:space-between;
   gap:10px;
 }
@@ -700,7 +772,6 @@ select.selectBtn:focus{
 }
 .miniBtn:active{ transform: translateY(1px) scale(.99); }
 
-/* painel do timer */
 .studyDock{
   display:flex;
   justify-content:flex-end;
@@ -917,7 +988,7 @@ input.btn, textarea.btn{
   line-height: 1;
 }
 
-@media (max-width: 420px){
+@media (max-width: 520px){
   .app{
     padding:
       calc(12px + var(--headerH) + var(--safeTop))
@@ -927,14 +998,6 @@ input.btn, textarea.btn{
   }
   .card{ padding: 14px; border-radius: 22px;}
   .grid2{ grid-template-columns: 1fr; }
-
-  .manageBtns{
-    width: 100%;
-    justify-content:flex-end;
-  }
-  .manageBtns .btn{
-    width: 110px;
-  }
 
   .topicName{ max-width: 52vw; }
 
@@ -949,18 +1012,13 @@ input.btn, textarea.btn{
     flex-wrap: wrap;
     justify-content: flex-start;
   }
-  .reorderTop{
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-  }
-  .reorderLeft{
-    width: 100%;
-  }
-  .manageBtns{
-    justify-content: flex-end;
-    width: 100%;
-  }
+
+  .reorderLeft{ min-width: 0; flex: 1 1 100%; }
+  .manageBtns{ width: 100%; justify-content:flex-end; }
+  .topicProg{ width: 92px; }
+
+  /* ✅ no celular, scroll interno mais confortável */
+  .scrollBox{ max-height: 55vh; }
 }
 
 @media (prefers-reduced-motion: reduce){
@@ -969,194 +1027,14 @@ input.btn, textarea.btn{
 }
 
 /* ==========================
-   SKILLS (progresso / projeção)
+   FIX definitivo: JP não vira “coluna”
    ========================== */
-
-.rankCard{
-  border-radius: 22px;
-  border: 1px solid rgba(255,255,255,.12);
-  background:
-    radial-gradient(480px 220px at 22% 10%, rgba(122,167,255,.20), transparent 62%),
-    radial-gradient(420px 260px at 92% 90%, rgba(255,134,200,.14), transparent 60%),
-    rgba(255,255,255,.03);
-  padding: 14px;
-}
-
-.rankBig{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  margin-bottom: 12px;
-}
-
-.rankIcon{
-  width: 54px;
-  height: 54px;
-  border-radius: 18px;
-  display:grid;
-  place-items:center;
-  font-size: 22px;
-  border: 1px solid rgba(255,255,255,.14);
-  background:
-    radial-gradient(26px 20px at 28% 22%, rgba(255,255,255,.22), transparent 60%),
-    linear-gradient(135deg, rgba(37,211,102,.22), rgba(183,155,255,.18), rgba(255,134,200,.12));
-  box-shadow: 0 14px 28px rgba(0,0,0,.26);
-}
-
-.rankTitle{
-  font-weight: 1000;
-  letter-spacing: .2px;
-  font-size: 18px;
-  line-height: 1.05;
-}
-.rankSub{
-  margin-top: 4px;
-  font-size: 12px;
-  color: rgba(238,243,255,.72);
-  line-height: 1.25;
-}
-
-.projWrap{
-  margin-top: 10px;
-  border-radius: 18px;
-  border: 1px solid rgba(255,255,255,.10);
-  background: rgba(255,255,255,.03);
-  padding: 12px;
-}
-.projTop{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  margin-bottom: 8px;
-}
-.projBar{
-  height: 12px;
-}
-.projTxt{
-  margin-top: 8px;
-  color: rgba(238,243,255,.70);
-}
-
-/* timeline */
-.tlLine{
-  position: relative;
-  padding: 14px 8px 10px 8px;
-  border-radius: 18px;
-  border: 1px solid rgba(255,255,255,.10);
-  background: rgba(255,255,255,.02);
-  overflow:hidden;
-}
-.tlTrack{
-  position:absolute;
-  left: 12px;
-  right: 12px;
-  top: 32px;
-  height: 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,.12);
-  background: rgba(255,255,255,.04);
-}
-.tlFill{
-  position:absolute;
-  left: 12px;
-  right: 12px;
-  top: 32px;
-  height: 10px;
-  border-radius: 999px;
-  transform-origin: left center;
-  transform: scaleX(0);
-  background: linear-gradient(90deg, rgba(37,211,102,.85), rgba(122,167,255,.65), rgba(255,134,200,.55));
-}
-
-.tlNodes{
-  position: relative;
-  display:grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 8px;
-  padding: 0 2px;
-  margin-top: 2px;
-}
-.tlNode{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:6px;
-  min-width:0;
-}
-.tlDot{
-  width: 14px;
-  height: 14px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,.14);
-  background: rgba(255,255,255,.08);
-  box-shadow: 0 10px 20px rgba(0,0,0,.22);
-  margin-top: 6px;
-}
-.tlNode.done .tlDot{
-  background: rgba(37,211,102,.22);
-  border-color: rgba(37,211,102,.32);
-}
-.tlLbl{
-  font-size: 11px;
-  color: rgba(238,243,255,.78);
-  font-weight: 900;
-  text-align:center;
-  white-space: nowrap;
-  overflow:hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-}
-.tlMini{
-  font-size: 10px;
-  color: rgba(238,243,255,.55);
-  font-weight: 900;
-}
-
-/* mini skills */
-.skillGrid{
-  display:flex;
-  flex-direction:column;
-  gap: 10px;
-}
-.skillRow{
-  display:flex;
-  align-items:center;
-  gap: 10px;
-}
-.skillLeft{
-  min-width: 0;
-  flex: 1;
-}
-.skillName{
-  font-weight: 1000;
-  font-size: 13px;
-  letter-spacing: .1px;
-}
-.skillTip{
-  margin-top: 3px;
-  font-size: 11px;
-  color: rgba(238,243,255,.62);
-  line-height: 1.25;
-}
-.skillRight{
-  display:flex;
-  align-items:center;
-  gap: 10px;
-  width: 44%;
-}
-.skillBar{
-  height: 10px;
-}
-
-@media (max-width: 420px){
-  .tlNodes{
-    grid-template-columns: repeat(6, 120px);
-    overflow-x: auto;
-    padding-bottom: 8px;
-    scroll-snap-type: x mandatory;
-  }
-  .tlNode{
-    scroll-snap-align: start;
-  }
+.itemTitle,
+.kana,
+#kanaLine{
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  word-break: normal !important;
+  overflow-wrap: anywhere;
+  white-space: normal !important;
 }
