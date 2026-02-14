@@ -1038,3 +1038,230 @@ input.btn, textarea.btn{
   overflow-wrap: anywhere;
   white-space: normal !important;
 }
+
+/* =========================================================
+   INCREMENTO: SKILLS + BACKUP (apenas estilos novos)
+   ========================================================= */
+
+.pt{
+  margin-top: 10px;
+  font-size: 14px;
+  color: rgba(238,243,255,.92);
+  font-weight: 900;
+}
+
+.skillsRankCard{
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.03);
+  padding: 14px;
+  text-align: center;
+}
+
+.rankHead{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  justify-content:center;
+}
+.rankIcon{
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.12);
+  background:
+    radial-gradient(260px 160px at 30% 20%, rgba(255,255,255,.18), transparent 60%),
+    rgba(255,255,255,.04);
+  display:grid;
+  place-items:center;
+  font-size: 24px;
+  box-shadow: 0 14px 30px rgba(0,0,0,.26);
+}
+.rankTitle{
+  font-weight: 1000;
+  font-size: 20px;
+  letter-spacing: .2px;
+  margin: 0;
+}
+.rankSub{
+  margin: 2px 0 0 0;
+  font-size: 12px;
+  color: rgba(238,243,255,.72);
+  font-weight: 850;
+}
+
+.rankPills{
+  display:flex;
+  gap:10px;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  margin-top: 10px;
+}
+.rankPill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.04);
+  font-weight: 950;
+  font-size: 12px;
+  color: rgba(238,243,255,.92);
+}
+
+.skillsBarRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-top: 12px;
+}
+.skillsBarLabel{
+  font-size: 12px;
+  color: rgba(238,243,255,.74);
+  font-weight: 900;
+}
+.skillsPctBadge{
+  min-width: 52px;
+  justify-content:center;
+}
+
+.tlWrap{
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.03);
+  padding: 14px;
+  text-align: center;
+}
+
+.tlLine{
+  position: relative;
+  height: 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.10);
+  overflow:hidden;
+  margin-top: 10px;
+}
+.tlFill{
+  height:100%;
+  width:100%;
+  transform-origin:left center;
+  transform: scaleX(0);
+  background: linear-gradient(90deg, rgba(37,211,102,.85), rgba(122,167,255,.65), rgba(255,134,200,.55));
+}
+
+.tlDots{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  margin-top: 10px;
+}
+.tlDot{
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.10);
+  box-shadow: 0 10px 22px rgba(0,0,0,.14);
+}
+.tlDot.done{
+  background: rgba(37,211,102,.28);
+  border-color: rgba(37,211,102,.35);
+}
+.tlDot.now{
+  background: rgba(122,167,255,.32);
+  border-color: rgba(122,167,255,.40);
+}
+
+.rankList{
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.03);
+  padding: 14px;
+  text-align: left;
+}
+.rankRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding: 10px 0;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+.rankRow:first-child{ border-top: none; }
+.rankRow .left{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0;
+}
+.rankRow .name{
+  font-weight: 950;
+  color: rgba(238,243,255,.92);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rankRow .meta{
+  font-size: 12px;
+  color: rgba(238,243,255,.66);
+  font-weight: 850;
+}
+.rankRightPill{
+  min-width: 76px;
+  justify-content:center;
+}
+
+.miniSkills{
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.03);
+  padding: 14px;
+  text-align: left;
+}
+.miniSkill{
+  display:grid;
+  grid-template-columns: 1fr 160px 52px;
+  gap:12px;
+  align-items:center;
+  padding: 10px 0;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+.miniSkill:first-child{ border-top: none; }
+.miniSkill .t{
+  font-weight: 1000;
+  letter-spacing: .2px;
+}
+.miniSkill .d{
+  font-size: 12px;
+  color: rgba(238,243,255,.66);
+  font-weight: 850;
+  margin-top: 2px;
+}
+@media (max-width: 520px){
+  .miniSkill{
+    grid-template-columns: 1fr;
+    gap:8px;
+  }
+  .miniSkill .miniBarRow{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+}
+
+.backupField{
+  width: 100%;
+  min-height: 120px;
+  resize: vertical;
+  padding: 12px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.03);
+  color: rgba(238,243,255,.92);
+  font-weight: 850;
+  line-height: 1.35;
+}

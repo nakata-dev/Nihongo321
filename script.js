@@ -1777,6 +1777,384 @@ function hookBackTopScroll() {
 }
 
 /* =========================================================
+   SKILLS (incremento real)
+   ========================================================= */
+
+function isAliveDay(dayObj) {
+  const ms = Number(dayObj?.ms || 0);
+  const cycles = Number(dayObj?.cycles || 0);
+  return (ms >= 2 * 60 * 1000) || (cycles >= 1);
+}
+
+function parseDayKeyToTS(k) {
+  // k: YYYY-MM-DD
+  const [y, m, d] = String(k || "").split("-").map(n => Number(n));
+  if (!y || !m || !d) return null;
+  return new Date(y, m - 1, d, 12, 0, 0, 0).getTime();
+}
+
+function collectDaysSorted() {
+  const days = STATE.habit?.days || {};
+  const keys = Object.keys(days).filter(k => /^\d{4}-\d{2}-\d{2}$/.test(k));
+  keys.sort((a, b) => (parseDayKeyToTS(a) || 0) - (parseDayKeyToTS(b) || 0));
+  return keys.map(k => ({ k, ts: parseDayKeyToTS(k) || 0, v: days[k] || {} }));
+}
+
+function calcAliveDays() {
+  const all = collectDaysSorted();
+  let alive = 0;
+  for (const d of all) if (isAliveDay(d.v)) alive++;
+  return alive;
+}
+
+function calcAliveStreak() {
+  const days = STATE.habit?.days || {};
+  const kToday = todayKey();
+  let streak = 0;
+
+  // anda pra trás enquanto for "dia vivo"
+  let ts = parseDayKeyToTS(kToday);
+  for (let i = 0; i < 5000; i++) {
+    const d = new Date(ts);
+    const kk = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    const obj = days[kk];
+    if (!obj || !isAliveDay(obj)) break;
+    streak++;
+    ts = addDaysTS(ts, -1);
+  }
+  return streak;
+}
+
+function sumStudyTotalMs() {
+  const all = collectDaysSorted();
+  let sum = 0;
+  for (const d of all) sum += Number(d.v?.ms || 0);
+  return sum;
+}
+
+function avgMinPerDayLast7() {
+  const days = STATE.habit?.days || {};
+  const tsToday = parseDayKeyToTS(todayKey()) || now();
+  let sumMs = 0;
+
+  for (let i = 0; i < 7; i++) {
+    const ts = addDaysTS(tsToday, -i);
+    const d = new Date(ts);
+    const kk = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    sumMs += Number(days[kk]?.ms || 0);
+  }
+  const min = (sumMs / 60000) / 7;
+  return Math.max(0, min);
+}
+
+function projectDateByMinutesGoal(goalMin, avgMinDay) {
+  if (!avgMinDay || avgMinDay <= 0.01) return null;
+  const totalMin = sumStudyTotalMs() / 60000;
+  const remaining = Math.max(0, goalMin - totalMin);
+  const daysNeed = remaining / avgMinDay;
+  return addDaysTS(parseDayKeyToTS(todayKey()) || now(), Math.ceil(daysNeed));
+}
+
+function rankSpec() {
+  return [
+    { key:"bronze", name:"Bronze", icon:"🥉", days: 7 },
+    { key:"aco", name:"Aço", icon:"🛡️", days: 30 },
+    { key:"ouro", name:"Ouro", icon:"🥇", days: 90 },
+    { key:"platina", name:"Platina", icon:"💠", days: 150 },
+    { key:"diamante", name:"Diamante", icon:"💎", days: 210 },
+    { key:"fluencia", name:"Fluência", icon:"🌸", days: 270 },
+  ];
+}
+
+function currentRankByAliveDays(aliveDays) {
+  const list = rankSpec();
+  let cur = list[0];
+  for (const r of list) {
+    if (aliveDays >= r.days) cur = r;
+  }
+  const next = list.find(r => r.days > aliveDays) || null;
+  return { cur, next, list };
+}
+
+function pct(x) { return `${Math.round(clamp(x, 0, 1) * 100)}%`; }
+
+function renderSkills() {
+  ensureHabitToday();
+  const aliveDays = calcAliveDays();
+  const streak = calcAliveStreak();
+
+  const { cur, next, list } = currentRankByAliveDays(aliveDays);
+
+  const avg7 = avgMinPerDayLast7();
+  const avgTxt = avg7 ? `${avg7.toFixed(1)} min/dia` : "0.0 min/dia";
+
+  // Meta de fluência (minutos): 270 dias * 10 min/dia = 2700 min (leve, mas viciante e realista pro app)
+  const goalMin = 270 * 10;
+  const totalMin = sumStudyTotalMs() / 60000;
+  const fluPct = clamp(totalMin / goalMin, 0, 1);
+  const etaTs = projectDateByMinutesGoal(goalMin, avg7);
+
+  const nextLabel = next ? `próxima: ${next.icon} ${next.name} (${next.days} dias)` : "no topo 👑";
+  const etaLabel = etaTs ? fmtDateShort(etaTs) : "—";
+
+  const tlFill = clamp(aliveDays / 270, 0, 1);
+
+  // mini skills (leve, só pra dar sensação de progresso)
+  const aliveSafe = Math.max(1, aliveDays);
+  const listens = Number(STATE.stats.listens || 0);
+  const calls = Number(STATE.stats.calls || 0);
+  const cycles = Number(STATE.stats.cyclesDone || 0);
+  const mastered = Number(STATE.stats.phrasesMastered || 0);
+  const coins = Number(STATE.stats.coins || 0);
+
+  const audition = clamp((listens / (aliveSafe * 5)), 0, 1);
+  const talk = clamp((calls / (aliveSafe * 3)), 0, 1);
+  const repetition = clamp((cycles / (aliveSafe * 2)), 0, 1);
+  const vocab = clamp((mastered / (aliveSafe * 0.2)), 0, 1);
+  const confidence = clamp((coins / (aliveSafe * 200)), 0, 1);
+
+  APP.innerHTML = `
+    <div class="stack">
+      <section class="card stack">
+        <div class="row row--between">
+          <div class="badge">skills</div>
+          <button class="btn" data-nav="#/home">voltar</button>
+        </div>
+
+        <div class="skillsRankCard">
+          <div class="rankHead">
+            <div class="rankIcon">${cur.icon}</div>
+            <div style="text-align:left">
+              <p class="rankTitle">${escapeHTML(cur.name)}</p>
+              <p class="rankSub">o nihongo não é tão estranho assim</p>
+            </div>
+          </div>
+
+          <div class="rankPills">
+            <div class="rankPill">${streak} dias vivos</div>
+            <div class="rankPill">${escapeHTML(nextLabel)}</div>
+          </div>
+
+          <div class="skillsBarRow">
+            <div class="skillsBarLabel">progresso até fluência</div>
+            <div class="rankPill skillsPctBadge">${pct(fluPct)}</div>
+          </div>
+
+          <div class="pWrap" style="margin-top:10px">
+            <div class="pBar"><div class="pFill" style="transform:scaleX(${fluPct})"></div></div>
+            <div class="pTxt">${pct(fluPct)}</div>
+          </div>
+
+          <div class="small" style="margin-top:8px">
+            se continuar no ritmo (${escapeHTML(avgTxt)}), fluência em: <b>${escapeHTML(etaLabel)}</b>
+          </div>
+        </div>
+
+        <div class="tlWrap">
+          <div class="row row--between">
+            <div class="rankPill">linha do tempo</div>
+            <div class="rankPill">meta: 9 meses</div>
+          </div>
+
+          <div class="tlLine" aria-label="linha do tempo">
+            <div class="tlFill" style="transform:scaleX(${tlFill})"></div>
+          </div>
+
+          <div class="tlDots" aria-hidden="true">
+            ${list.map(r => {
+              const done = aliveDays >= r.days;
+              const isNow = cur.key === r.key;
+              return `<div class="tlDot ${done ? "done" : ""} ${isNow ? "now" : ""}"></div>`;
+            }).join("")}
+          </div>
+
+          <div class="small" style="margin-top:10px">
+            dica: “dia vivo” = 2 min ou 1 ciclo. sem culpa.
+          </div>
+        </div>
+
+        <div class="rankList">
+          <div class="row row--between" style="margin-bottom:4px">
+            <div class="rankPill">projeção de ranks</div>
+            <div class="rankPill">${escapeHTML(avgTxt)}</div>
+          </div>
+
+          ${list.map(r => {
+            const done = aliveDays >= r.days;
+            const remaining = Math.max(0, r.days - aliveDays);
+            const ts = done ? null : addDaysTS(parseDayKeyToTS(todayKey()) || now(), remaining);
+            const right = done ? "feito ✅" : fmtDateShort(ts || now());
+            return `
+              <div class="rankRow">
+                <div class="left">
+                  <div class="name">${r.icon} ${escapeHTML(r.name)}</div>
+                  <div class="meta">(${r.days} dias)</div>
+                </div>
+                <div class="rankPill rankRightPill">${escapeHTML(right)}</div>
+              </div>
+            `;
+          }).join("")}
+        </div>
+
+        <div class="miniSkills">
+          <div class="row row--between" style="margin-bottom:4px">
+            <div class="rankPill">mini skills</div>
+            <div class="rankPill">panorama</div>
+          </div>
+
+          ${[
+            { icon:"🎧", title:"audição", desc:"quanto mais você ouve, menos pensa", v: audition },
+            { icon:"🗣️", title:"fala", desc:"call and response deixa a boca solta", v: talk },
+            { icon:"🔁", title:"repetição", desc:"o ouro vem do ciclo fechado", v: repetition },
+            { icon:"📦", title:"vocab", desc:"palavras viram ferramentas", v: vocab },
+            { icon:"✨", title:"confiança", desc:"a soma silenciosa do dia a dia", v: confidence },
+          ].map(s => {
+            const p = clamp(s.v, 0, 1);
+            return `
+              <div class="miniSkill">
+                <div>
+                  <div class="t">${s.icon} ${escapeHTML(s.title)}</div>
+                  <div class="d">${escapeHTML(s.desc)}</div>
+                </div>
+                <div class="miniBarRow">
+                  <div class="pBar"><div class="pFill" style="transform:scaleX(${p})"></div></div>
+                </div>
+                <div class="pTxt">${pct(p)}</div>
+              </div>
+            `;
+          }).join("")}
+
+          <div class="small" style="text-align:center;margin-top:10px">
+            você não precisa vencer o dia. só precisa encostar nele por 2 minutos.
+          </div>
+        </div>
+      </section>
+    </div>
+  `;
+
+  ensureBackTopButton();
+  updateBackTopVisibility();
+}
+
+/* =========================================================
+   BACKUP (incremento real)
+   ========================================================= */
+
+function buildBackupFilename() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mm = String(d.getMinutes()).padStart(2, "0");
+  return `nihongo321_backup_${y}${m}${dd}_${hh}${mm}.json`;
+}
+
+function exportStateJSON() {
+  // compacto porém legível
+  try { return JSON.stringify(STATE, null, 2); } catch { return ""; }
+}
+
+async function copyTextToClipboard(text) {
+  if (!text) return false;
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch {}
+  try {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "true");
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    ta.style.top = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, ta.value.length);
+    const ok = document.execCommand("copy");
+    ta.remove();
+    return !!ok;
+  } catch {
+    return false;
+  }
+}
+
+function importStateFromString(str) {
+  const parsed = safeJSONParse(String(str || "").trim());
+  if (!parsed) return { ok: false, msg: "json inválido." };
+
+  const st = sanitizeState(parsed);
+  STATE = st;
+  saveStateNow();
+  refreshHUD();
+  return { ok: true, msg: "importado ✅" };
+}
+
+function renderBackup() {
+  APP.innerHTML = `
+    <div class="stack">
+      <section class="card stack">
+        <div class="row row--between">
+          <div class="badge">backup</div>
+          <button class="btn" data-nav="#/home">voltar</button>
+        </div>
+
+        <div class="sheet stack" style="text-align:left">
+          <div class="badge">exportar</div>
+          <div class="small">no celular, “baixar arquivo” costuma ser o mais confiável ✅</div>
+
+          <button class="bigBtn" data-action="copyBackup">copiar json</button>
+          <button class="bigBtn" data-action="downloadBackup">baixar arquivo</button>
+        </div>
+
+        <div class="sheet stack" style="text-align:left">
+          <div class="badge">importar</div>
+
+          <div class="grid2">
+            <button class="btn btn--full" data-action="importFromText">importar do texto</button>
+            <button class="btn btn--full" data-action="triggerImportFile">importar arquivo</button>
+          </div>
+
+          <div class="small">cole aqui para importar</div>
+          <textarea id="backupText" class="backupField" placeholder="cole aqui o JSON do backup..."></textarea>
+
+          <input id="backupFile" type="file" accept="application/json,.json" style="display:none" />
+
+          <div class="small" style="margin-top:6px">
+            como usar no celular:<br/>
+            1) exportar: baixar arquivo (ou copiar) e mandar no whatsapp pra você mesmo<br/>
+            2) importar: abrir o arquivo e importar aqui
+          </div>
+        </div>
+      </section>
+    </div>
+  `;
+
+  const file = $("#backupFile");
+  if (file) {
+    file.onchange = async () => {
+      try {
+        const f = file.files && file.files[0];
+        if (!f) return;
+        const text = await f.text();
+        const r = importStateFromString(text);
+        if (!r.ok) { toast(r.msg); beep("tuk"); return; }
+        toast("importado ✅");
+        beep("ding");
+        nav("#/home");
+      } catch {
+        toast("falha ao importar arquivo");
+        beep("tuk");
+      } finally {
+        try { file.value = ""; } catch {}
+      }
+    };
+  }
+}
+
+/* =========================================================
    Click delegation + drag (Pointer)
    ========================================================= */
 
@@ -2106,6 +2484,49 @@ document.addEventListener("click", (e) => {
     return;
   }
 
+  /* BACKUP actions (incremento) */
+  if (act === "copyBackup") {
+    unlockAudio();
+    const text = exportStateJSON();
+    copyTextToClipboard(text).then((ok) => {
+      toast(ok ? "json copiado ✅" : "não deu pra copiar");
+      beep(ok ? "ding" : "tuk");
+      vibrate(ok ? [8] : [6]);
+    });
+    return;
+  }
+
+  if (act === "downloadBackup") {
+    unlockAudio();
+    const text = exportStateJSON();
+    if (!text) { toast("falha ao gerar backup"); beep("tuk"); return; }
+    downloadTextFile(buildBackupFilename(), text, "application/json");
+    toast("baixando… ✅");
+    beep("ding");
+    return;
+  }
+
+  if (act === "importFromText") {
+    unlockAudio();
+    const ta = $("#backupText");
+    const raw = (ta?.value || "").trim();
+    if (!raw) { toast("cole o json primeiro"); beep("tuk"); return; }
+    const r = importStateFromString(raw);
+    if (!r.ok) { toast(r.msg); beep("tuk"); return; }
+    toast("importado ✅");
+    beep("ding");
+    nav("#/home");
+    return;
+  }
+
+  if (act === "triggerImportFile") {
+    unlockAudio();
+    const file = $("#backupFile");
+    if (!file) { toast("input de arquivo não encontrado"); beep("tuk"); return; }
+    file.click();
+    return;
+  }
+
   if (btn.id === "hudSound") {
     unlockAudio();
     STATE.prefs.audio.enabled = !STATE.prefs.audio.enabled;
@@ -2281,29 +2702,7 @@ window.addEventListener("error", () => {
   try { toast("algo quebrou. reset pode salvar."); } catch {}
 });
 
-/* ---------- backup/settings/skills (mantidos do seu projeto) ---------- */
-/* Mantive suas telas backup/settings/skills como estavam, mas no seu paste
-   elas estavam completas só em parte (skills também). Se você quiser,
-   eu consolido backup/settings/skills em uma próxima rodada.
-   Por enquanto: seu núcleo (home/105x/edit/manage) está estável. */
-
-function renderBackup() {
-  APP.innerHTML = `
-    <div class="stack">
-      <section class="card stack">
-        <div class="row row--between">
-          <div class="badge">backup</div>
-          <button class="btn" data-nav="#/home">voltar</button>
-        </div>
-
-        <div class="sheet stack">
-          <div class="small">backup estável: use seu backup atual aqui (mantido).</div>
-        </div>
-      </section>
-    </div>
-  `;
-}
-
+/* ---------- settings (mantidos) ---------- */
 function renderSettings() {
   APP.innerHTML = `
     <div class="stack">
@@ -2327,22 +2726,6 @@ function renderSettings() {
         <div class="sep"></div>
         <button class="btn btn--bad btn--full" data-action="reset">resetar tudo</button>
         <div class="small">vai voltar ao seed inicial.</div>
-      </section>
-    </div>
-  `;
-}
-
-function renderSkills() {
-  APP.innerHTML = `
-    <div class="stack">
-      <section class="card stack">
-        <div class="row row--between">
-          <div class="badge">skills</div>
-          <button class="btn" data-nav="#/home">voltar</button>
-        </div>
-        <div class="sheet stack">
-          <div class="small">skills: mantenha sua versão original aqui (posso consolidar na próxima).</div>
-        </div>
       </section>
     </div>
   `;
