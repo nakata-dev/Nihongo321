@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#070a11" />
+  <title>NIHONGO321</title>
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="shortcut icon" href="./img/favicon.png" type="image/x-icon">
+</head>
+
+<body>
+  <!-- HEADER FIXO -->
+  <header class="topbar" role="banner">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"></div>
+      <div class="brandText">
+        <div class="brandTitle">NIHONGO321</div>
+        <div class="brandSub" id="subStatus">0 ciclos • 0 dominadas</div>
+      </div>
+    </div>
+
+    <div class="hud" aria-label="HUD">
+      <div class="hudItem" title="moedas">
+        <span class="hudIcon">🪙</span>
+        <span id="hudCoinsVal">0</span>
+      </div>
+      <button class="hudBtn" id="hudSound" title="som">🔊</button>
+      <button class="hudBtn" id="hudVibe" title="vibração">📳</button>
+      <button class="hudBtn" title="ajustes" onclick="location.hash='#/settings'">⚙️</button>
+    </div>
+  </header>
+
+  <!-- CONTEÚDO -->
+  <main class="app" id="app" role="main"></main>
+
+  <!-- FOOTER FIXO -->
+  <footer class="footerbar" role="contentinfo">
+    <div class="footerText">Copyright @ 2026 - Ailton A. Nakata</div>
+  </footer>
+
+  <div class="toast" id="toast" aria-live="polite"></div>
+
+  <script src="./script.js" defer></script>
+</body>
+</html>
