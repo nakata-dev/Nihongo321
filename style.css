@@ -392,11 +392,39 @@ select.selectBtn:focus{ outline: none; }
 
 .primaryRow{
   display:flex;
-  justify-content:flex-start;
+  justify-content:center; /* ✅ CENTRALIZA "repeti e entendi" */
   width:100%;
 }
 .primaryRow .primaryAction{
   width: min(420px, 100%);
+  margin: 0 auto; /* ✅ garante centralização */
+}
+
+/* ✅ AUMENTO DE FONTE NO ESTUDO (JP + PT) */
+.phraseArea .kana,
+#kanaLine{
+  font-size: 34px; /* (era 30px) */
+  line-height: 1.35;
+  font-weight: 950;
+  letter-spacing: .1px;
+}
+
+#ptLine{
+  font-size: 20px; /* (era 18px) */
+  line-height: 1.45;
+  font-weight: 900;
+  letter-spacing: .1px;
+}
+
+/* ✅ “ouvir normal” com MESMO TAMANHO do botão primário + CENTRALIZADO */
+.btn[data-action="speak"][data-rate="1"]{
+  height: 64px;
+  border-radius: 22px;
+  font-size: 18px;
+  font-weight: 1000;
+  width: min(420px, 100%);
+  margin: 0 auto;     /* ✅ centraliza */
+  display: block;     /* ✅ garante comportamento centralizado */
 }
 
 /* ---------- pills ---------- */
@@ -669,7 +697,7 @@ select.selectBtn:focus{ outline: none; }
 
 .kana ruby{ ruby-position: over; ruby-align: center; }
 .kana rt{
-  font-size: .56em;
+  font-size: .62em;
   line-height: 1;
   color: rgba(238,243,255,.78);
   font-weight: 900;
@@ -1005,8 +1033,8 @@ input.btn, textarea.btn{
   .studyRight{ width: 100%; max-width: 100%; }
   .studyTimer{ width: 100%; }
 
-  .primaryRow{ justify-content:flex-start; }
-  .primaryRow .primaryAction{ width: 100%; }
+  .primaryRow{ justify-content:center; } /* ✅ */
+  .primaryRow .primaryAction{ width: 100%; margin: 0 auto; } /* ✅ */
 
   .topicTools{
     flex-wrap: wrap;
@@ -1019,6 +1047,21 @@ input.btn, textarea.btn{
 
   /* ✅ no celular, scroll interno mais confortável */
   .scrollBox{ max-height: 55vh; }
+
+  /* ✅ ajuste fino de fonte no mobile (estudo) */
+  .phraseArea .kana,
+  #kanaLine{
+    font-size: 30px; /* (era 26px) */
+  }
+  #ptLine{
+    font-size: 19px; /* (era 17px) */
+  }
+
+  /* ✅ “ouvir normal” centralizado no mobile também */
+  .btn[data-action="speak"][data-rate="1"]{
+    width: 100%;
+    margin: 0 auto;
+  }
 }
 
 @media (prefers-reduced-motion: reduce){
